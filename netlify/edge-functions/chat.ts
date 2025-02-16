@@ -53,7 +53,7 @@ export default async function handler(
   } catch (e) {
     console.error(e);
     return new Response(e.message, {
-      status: 500,
+      status: 404,
       headers: {
         "Content-Type": "text/plain",
       },
