@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { prompt } from "./prompts/customer-support.ts"; // Ton prompt adapté
+import { prompt } from "./prompts/movie-critic.ts"; // Ton prompt adapté
 
 // Charger les données du fichier JSON
 const supportData = JSON.parse(fs.readFileSync('supportData.json', 'utf-8'));
