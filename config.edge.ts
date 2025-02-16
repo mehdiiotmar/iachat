@@ -1,32 +1,31 @@
-import type { AppConfig } from "./lib/edge/types.ts";
+import fs from 'fs';
+import { prompt } from "./prompts/customer-support.ts"; // Ton prompt adapté
 
-import { prompt } from "./prompts/movie-critic.ts";
-// import { prompt } from "./prompts/tour-guide.ts";
+// Charger les données du fichier JSON
+const supportData = JSON.parse(fs.readFileSync('supportData.json', 'utf-8'));
 
+// Fonction pour trouver la réponse dans le JSON
+function getAnswer(userQuestion: string): string {
+  // Cherche une question correspondante dans le JSON
+  const found = supportData.questions.find(q =>
+    userQuestion.toLowerCase().includes(q.question.toLowerCase())
+  );
+
+  // Si trouvé, renvoyer la réponse
+  return found ? found.answer : "Désolé, je n'ai pas trouvé de réponse à votre question. Voulez-vous contacter notre support ?";
+}
+
+// Exporte la configuration de l'application
 export const appConfig: AppConfig = {
-  // This should be set in an environment variable
-  // See https://platform.openai.com/account/api-keys
   OPENAI_API_KEY: Netlify.env.get("OPENAI_API_KEY") ?? "",
-
-  // The maximum number of message in the history to send to the API
-  // You should also set this in the config.browser.ts file.
   historyLength: 8,
-
-  // The maximum length in characters of each message sent to the API
-  // You should also set this in the config.browser.ts file.
   maxMessageLength: 1000,
-
-  // The config values sent to the OpenAI API
-  // See https://platform.openai.com/docs/api-reference/chat/create
   apiConfig: {
     model: "gpt-3.5-turbo-1106",
   },
-
-  // This is where the magic happens. See the README for details
-  // This can be a plain string if you'd prefer, or you can use
-  // information from the request or context to generate it.
-  systemPrompt: (_req, context) => `${prompt}
-Respond with valid markdown. Knowledge cutoff September 2021.
-Current date: ${new Date().toDateString()}.
-User location: ${context.geo.city}, ${context.geo.country}`,
+  systemPrompt: (_req, context) => {
+    // Personnaliser la réponse du bot en fonction des données du JSON sans localisation ni date
+    return `${prompt}
+Répondez en fonction des informations suivantes : ${getAnswer(context.userQuestion)}`;
+  },
 };
